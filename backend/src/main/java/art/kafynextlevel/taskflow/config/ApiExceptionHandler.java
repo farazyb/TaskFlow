@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import art.kafynextlevel.taskflow.auth.InvalidCredentialsException;
+import art.kafynextlevel.taskflow.auth.InvalidRefreshTokenException;
 import art.kafynextlevel.taskflow.user.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +45,25 @@ public class ApiExceptionHandler {
                 Map.of()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidCredentials(InvalidCredentialsException exception) {
+        ApiErrorResponse response = new ApiErrorResponse(
+                "INVALID_CREDENTIALS",
+                exception.getMessage(),
+                Map.of()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidRefreshToken(InvalidRefreshTokenException exception) {
+        ApiErrorResponse response = new ApiErrorResponse(
+                "INVALID_REFRESH_TOKEN",
+                exception.getMessage(),
+                Map.of()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }
