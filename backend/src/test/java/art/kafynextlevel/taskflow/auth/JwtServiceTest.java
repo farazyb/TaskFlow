@@ -66,6 +66,44 @@ class JwtServiceTest {
     }
 
     @Test
+    void parseAccessToken_returnsTokenPrincipal_whenAccessTokenIsValid() {
+        JwtService jwtService = new JwtService(properties, Clock.systemUTC());
+        UUID userId = UUID.randomUUID();
+        AuthTokens tokens = jwtService.issueTokens(userId, "access@example.com");
+
+        TokenPrincipal principal = jwtService.parseAccessToken(tokens.accessToken());
+
+        assertThat(principal.userId()).isEqualTo(userId);
+        assertThat(principal.email()).isEqualTo("access@example.com");
+    }
+
+    @Test
+    void parseAccessToken_rejectsRefreshToken() {
+        JwtService jwtService = new JwtService(properties, Clock.systemUTC());
+        AuthTokens tokens = jwtService.issueTokens(UUID.randomUUID(), "refresh-only@example.com");
+
+        assertThatThrownBy(() -> jwtService.parseAccessToken(tokens.refreshToken()))
+                .isInstanceOf(InvalidAccessTokenException.class)
+                .hasMessageContaining("invalid");
+    }
+
+    @Test
+    void parseAccessToken_rejectsExpiredToken() {
+        Instant issueAt = Instant.parse("2026-02-20T10:00:00Z");
+        JwtService signer = new JwtService(properties, Clock.fixed(issueAt, ZoneOffset.UTC));
+        AuthTokens tokens = signer.issueTokens(UUID.randomUUID(), "expired-access@example.com");
+
+        JwtService parser = new JwtService(
+                properties,
+                Clock.fixed(issueAt.plus(Duration.ofMinutes(16)), ZoneOffset.UTC)
+        );
+
+        assertThatThrownBy(() -> parser.parseAccessToken(tokens.accessToken()))
+                .isInstanceOf(InvalidAccessTokenException.class)
+                .hasMessageContaining("expired");
+    }
+
+    @Test
     void parseRefreshToken_rejectsAccessToken() {
         JwtService jwtService = new JwtService(properties, Clock.systemUTC());
         AuthTokens tokens = jwtService.issueTokens(UUID.randomUUID(), "access@example.com");

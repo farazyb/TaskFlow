@@ -64,6 +64,37 @@ public class JwtService {
         return new AuthTokens(accessToken, refreshToken, accessExpiresAt, refreshExpiresAt);
     }
 
+    public TokenPrincipal parseAccessToken(String accessToken) {
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .clock(() -> Date.from(Instant.now(clock)))
+                    .verifyWith(signingKey)
+                    .build()
+                    .parseSignedClaims(accessToken)
+                    .getPayload();
+        } catch (JwtException | IllegalArgumentException exception) {
+            throw new InvalidAccessTokenException("Access token is invalid or expired", exception);
+        }
+
+        String tokenType = claims.get(CLAIM_TYPE, String.class);
+        if (!TOKEN_TYPE_ACCESS.equals(tokenType)) {
+            throw new InvalidAccessTokenException("Access token is invalid");
+        }
+
+        String subject = claims.getSubject();
+        String email = claims.get(CLAIM_EMAIL, String.class);
+        if (subject == null || email == null || email.isBlank()) {
+            throw new InvalidAccessTokenException("Access token is invalid");
+        }
+
+        try {
+            return new TokenPrincipal(UUID.fromString(subject), email);
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidAccessTokenException("Access token is invalid", exception);
+        }
+    }
+
     public TokenPrincipal parseRefreshToken(String refreshToken) {
         Claims claims;
         try {
