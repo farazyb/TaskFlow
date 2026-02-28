@@ -50,10 +50,22 @@ p {
 }
 
 .auth-page {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 24px;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 16%, rgb(54 69 79 / 11%) 0, transparent 30%),
+    radial-gradient(circle at 85% 82%, rgb(112 128 144 / 15%) 0, transparent 33%);
 }
 
 .auth-card {
@@ -61,10 +73,16 @@ p {
   background: var(--color-background);
   border: var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 26px 52px rgb(54 69 79 / 14%);
   padding: clamp(24px, 3vw, 36px);
   display: grid;
-  gap: 14px;
+  gap: 16px;
+}
+
+.auth-card h1 {
+  font-size: clamp(30px, 4vw, 38px);
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .eyebrow {
@@ -88,6 +106,77 @@ p {
 .helper-links a {
   color: var(--color-primary);
   font-weight: 500;
+}
+
+.auth-footnote {
+  border-top: var(--border);
+  padding-top: 12px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.form-group {
+  display: grid;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.form-input {
+  border: var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 11px 12px;
+  outline: 0;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.form-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(54 69 79 / 15%);
+}
+
+.input-error {
+  border-color: #b45157;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgb(180 81 87 / 16%);
+}
+
+.field-error {
+  color: #b45157;
+  font-size: 12px;
+}
+
+.form-error-banner,
+.form-success-banner {
+  border-radius: var(--radius-sm);
+  border: var(--border);
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.form-error-banner {
+  color: #8a2730;
+  border-color: rgb(180 81 87 / 40%);
+  background: rgb(180 81 87 / 10%);
+}
+
+.form-success-banner {
+  color: #275a39;
+  border-color: rgb(74 124 89 / 42%);
+  background: rgb(74 124 89 / 10%);
 }
 
 .primary-button,
@@ -252,5 +341,9 @@ code {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .auth-card h1 {
+    font-size: 28px;
   }
 }
